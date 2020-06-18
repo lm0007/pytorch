@@ -2089,6 +2089,14 @@ class TestQuantizeScriptPTSQOps(QuantizationTestCase):
             FileCheck().check_not("aten::hardswish") \
                        .run(m.graph)
 
+    def test_elu(self):
+        data = [(torch.rand((1, 2, 5, 5), dtype=torch.float), torch.randint(0, 1, (1,), dtype=torch.long)) for _ in range(2)]
+        elu = torch.nn.ELU()
+        for tracing in [True, False]:
+            m = self.checkGraphModeOp(elu, data, "quantized::elu", tracing)
+            FileCheck().check_not("aten::elu") \
+                       .run(m.graph)
+
     def test_layer_norm(self):
         data = [(torch.rand((1, 2, 5, 5), dtype=torch.float), torch.randint(0, 1, (1,), dtype=torch.long)) for _ in range(2)]
         layer_norm = torch.nn.LayerNorm([2, 5, 5])
